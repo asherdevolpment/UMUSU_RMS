@@ -1,0 +1,582 @@
+<main class="dashboard-shell">
+  <aside class="sidebar" aria-label="Admin navigation">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 3 5 6v5.4c0 4.6 2.9 8.6 7 9.6 4.1-1 7-5 7-9.6V6l-7-3Zm-1 5h2v3h3v2h-3v3h-2v-3H8v-2h3V8Z" />
+        </svg>
+      </span>
+      <div>
+        <strong>UMUSU RMS</strong>
+        <span>Admin</span>
+      </div>
+    </div>
+
+    <nav>
+      <button
+        type="button"
+        aria-label="Dashboard"
+        [class.active]="activeSection() === 'dashboard'"
+        (click)="showSection('dashboard')"
+      >
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 13h8V3H3v10Zm10 8h8V3h-8v18ZM3 21h8v-6H3v6Z" />
+        </svg>
+        <span>Dashboard</span>
+      </button>
+      <button
+        type="button"
+        aria-label="Manage users"
+        [class.active]="activeSection() === 'users'"
+        (click)="showSection('users')"
+      >
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M16 11c1.66 0 3-1.57 3-3.5S17.66 4 16 4s-3 1.57-3 3.5 1.34 3.5 3 3.5Zm-8 0c1.66 0 3-1.57 3-3.5S9.66 4 8 4 5 5.57 5 7.5 6.34 11 8 11Zm0 2c-2.67 0-6 1.34-6 4v2h12v-2c0-2.66-3.33-4-6-4Zm8 0c-.31 0-.65.02-1 .07 1.16.84 2 1.95 2 3.43V19h5v-2c0-2.66-3.33-4-6-4Z" />
+        </svg>
+        <span>Manage Users</span>
+      </button>
+      <button
+        type="button"
+        aria-label="Manage roles"
+        [class.active]="activeSection() === 'roles'"
+        (click)="showSection('roles')"
+      >
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3Zm0 3.1 5 1.87V11c0 3.58-2.08 6.96-5 8.06C9.08 17.96 7 14.58 7 11V6.97l5-1.87Z" />
+        </svg>
+        <span>Manage Roles</span>
+      </button>
+      <button
+        type="button"
+        aria-label="Manage campuses"
+        [class.active]="activeSection() === 'campuses'"
+        (click)="showSection('campuses')"
+      >
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 21V9l8-6 8 6v12h-6v-7h-4v7H4Zm3-3h2v-7h6v7h2v-7.5l-5-3.75-5 3.75V18Z" />
+        </svg>
+        <span>Manage Campuses</span>
+      </button>
+      <button
+        type="button"
+        aria-label="Manage role categories"
+        [class.active]="activeSection() === 'categories'"
+        (click)="showSection('categories')"
+      >
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 5h16v3H4V5Zm0 5.5h10v3H4v-3ZM4 16h16v3H4v-3Zm13-5 3 2-3 2v-4Z" />
+        </svg>
+        <span>Role Categories</span>
+      </button>
+      <button
+        type="button"
+        aria-label="Reports"
+        [class.active]="activeSection() === 'reports'"
+        (click)="showSection('reports')"
+      >
+        <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 21V3h14v18H5Zm3-3h8v-2H8v2Zm0-4h8v-2H8v2Zm0-4h8V8H8v2Z" />
+        </svg>
+        <span>Reports</span>
+      </button>
+    </nav>
+  </aside>
+
+  <section class="workspace" aria-labelledby="page-title">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Admin Console</p>
+        <h1 id="page-title">URMS System control center</h1>
+      </div>
+
+      <div class="profile">
+        <span class="profile-avatar" aria-hidden="true">{{ userInitial() }}</span>
+        <span>{{ currentUserName() }}</span>
+        <button type="button" class="logout-button" (click)="logout()">Logout</button>
+      </div>
+    </header>
+
+    @if (isLoading()) {
+      <section class="loading-state" aria-live="polite">Loading dashboard...</section>
+    } @else {
+      @if (loadError()) {
+        <p class="alert error" role="alert">{{ loadError() }}</p>
+      }
+
+      @if (successMessage()) {
+        <p class="alert success" role="status">{{ successMessage() }}</p>
+      }
+
+      <section class="metric-grid" aria-label="System summary">
+        <article class="metric-card purple">
+          <span class="metric-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 12c2.21 0 4-2.01 4-4.5S14.21 3 12 3 8 5.01 8 7.5s1.79 4.5 4 4.5Zm0 2c-3.31 0-7 1.67-7 5v2h14v-2c0-3.33-3.69-5-7-5Z" />
+            </svg>
+          </span>
+          <span>Total Users</span>
+          <strong>{{ totalUsers() }}</strong>
+        </article>
+        <article class="metric-card green">
+          <span class="metric-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="m10 15.2 7.6-7.6L19 9l-9 9-5-5 1.4-1.4 3.6 3.6Z" />
+            </svg>
+          </span>
+          <span>Active Users</span>
+          <strong>{{ activeUsers() }}</strong>
+        </article>
+        <article class="metric-card blue">
+          <span class="metric-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3Zm0 5 4 4-1.4 1.4L13 10.8V17h-2v-6.2l-1.6 1.6L8 11l4-4Z" />
+            </svg>
+          </span>
+          <span>Roles</span>
+          <strong>{{ roleCount() }}</strong>
+        </article>
+        <article class="metric-card gold">
+          <span class="metric-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 21V9l8-6 8 6v12h-6v-7h-4v7H4Z" />
+            </svg>
+          </span>
+          <span>Campuses</span>
+          <strong>{{ campusCount() }}</strong>
+        </article>
+      </section>
+
+      @switch (activeSection()) {
+        @case ('dashboard') {
+          <section class="setup-grid" aria-label="Admin overview">
+            <section class="panel" aria-labelledby="overview-roles-title">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Access Structure</p>
+                  <h2 id="overview-roles-title">Role distribution</h2>
+                </div>
+              </div>
+
+              <div class="stack-list">
+                @for (item of usersByRole(); track item.role.id) {
+                  <article class="summary-row">
+                    <strong>{{ item.role.name }}</strong>
+                    <span>{{ item.total }} users</span>
+                  </article>
+                }
+              </div>
+            </section>
+
+            <section class="panel" aria-labelledby="overview-campus-title">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Campus Scope</p>
+                  <h2 id="overview-campus-title">Campus distribution</h2>
+                </div>
+              </div>
+
+              <div class="stack-list compact">
+                @for (item of usersByCampus(); track item.campus.id) {
+                  <article class="summary-row">
+                    <strong>{{ item.campus.name }}</strong>
+                    <span>{{ item.total }} users</span>
+                  </article>
+                }
+              </div>
+            </section>
+          </section>
+        }
+
+        @case ('users') {
+          <div class="content-grid">
+            <section class="panel user-form-panel" aria-labelledby="create-user-title">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">User Management</p>
+                  <h2 id="create-user-title">Create system user</h2>
+                </div>
+              </div>
+
+              <form [formGroup]="createUserForm" (ngSubmit)="createUser()" class="create-form">
+                <div class="field">
+                  <label for="full-name">Full name</label>
+                  <input id="full-name" type="text" formControlName="fullName" autocomplete="name" />
+                </div>
+
+                <div class="field">
+                  <label for="email">Email</label>
+                  <input id="email" type="email" formControlName="email" autocomplete="email" />
+                </div>
+
+                <div class="field">
+                  <label for="password">Temporary password</label>
+                  <input
+                    id="password"
+                    type="password"
+                    formControlName="password"
+                    autocomplete="new-password"
+                  />
+                </div>
+
+                <div class="field">
+                  <label for="role">Role</label>
+                  <select id="role" formControlName="roleId" (change)="roleChanged()">
+                    @for (role of roles(); track role.id) {
+                      <option [value]="role.id">{{ role.name }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="office-title">Office / designation</label>
+                  <select id="office-title" formControlName="officeTitle">
+                    @for (office of officeOptions(); track office) {
+                      <option [value]="office">{{ office }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="campus">Campus</label>
+                  <select id="campus" formControlName="campusId">
+                    @for (campus of campuses(); track campus.id) {
+                      <option [value]="campus.id">{{ campus.name }}</option>
+                    }
+                  </select>
+                </div>
+
+                <button type="submit" [disabled]="isCreating()">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6Z" />
+                  </svg>
+                  <span>{{ isCreating() ? 'Creating...' : 'Create User' }}</span>
+                </button>
+              </form>
+            </section>
+
+            <section class="panel table-panel" aria-labelledby="users-title">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Directory</p>
+                  <h2 id="users-title">Users</h2>
+                </div>
+              </div>
+
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th scope="col">Name</th>
+                      <th scope="col">Email</th>
+                      <th scope="col">Role</th>
+                      <th scope="col">Office</th>
+                      <th scope="col">Campus</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (user of users(); track user.id) {
+                      <tr>
+                        <td>{{ user.fullName }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.role.name }}</td>
+                        <td>{{ user.officeTitle }}</td>
+                        <td>{{ user.campus.name }}</td>
+                        <td>
+                          <span class="status" [class.inactive]="!user.isActive">
+                            {{ user.isActive ? 'Active' : 'Inactive' }}
+                          </span>
+                        </td>
+                        <td>
+                          <div class="action-row">
+                            <button
+                              type="button"
+                              class="text-button"
+                              [disabled]="user.id === currentUserId()"
+                              (click)="toggleUserStatus(user)"
+                            >
+                              <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4Zm0 2c-2.7 0-8 1.3-8 4v2h16v-2c0-2.7-5.3-4-8-4Z" />
+                              </svg>
+                              <span>{{ user.isActive ? 'Deactivate' : 'Reactivate' }}</span>
+                            </button>
+                            <button
+                              type="button"
+                              class="danger-button"
+                              [disabled]="user.id === currentUserId()"
+                              (click)="deleteUser(user)"
+                            >
+                              <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M7 21c-.55 0-1-.45-1-1V7H5V5h4V4h6v1h4v2h-1v13c0 .55-.45 1-1 1H7Zm2-3h2V8H9v10Zm4 0h2V8h-2v10Z" />
+                              </svg>
+                              <span>Delete</span>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        }
+
+        @case ('roles') {
+          <div class="management-grid">
+            <section class="panel" aria-labelledby="role-form-title">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Role Management</p>
+                  <h2 id="role-form-title">{{ editingRoleId() ? 'Edit role' : 'Create role' }}</h2>
+                </div>
+              </div>
+
+              <form [formGroup]="roleForm" (ngSubmit)="saveRole()" class="create-form">
+                <div class="field">
+                  <label for="role-name">Role name</label>
+                  <input id="role-name" type="text" formControlName="name" />
+                </div>
+
+                <div class="field">
+                  <label for="role-description">Description</label>
+                  <textarea id="role-description" formControlName="description"></textarea>
+                </div>
+
+                <div class="button-row">
+                  <button type="submit" [disabled]="isManaging()">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6Z" />
+                    </svg>
+                    <span>{{ editingRoleId() ? 'Update Role' : 'Create Role' }}</span>
+                  </button>
+                  @if (editingRoleId()) {
+                    <button type="button" class="secondary-button" (click)="cancelRoleEdit()">Cancel</button>
+                  }
+                </div>
+              </form>
+            </section>
+
+            <section class="panel" aria-labelledby="roles-title">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Access Structure</p>
+                  <h2 id="roles-title">System roles</h2>
+                </div>
+              </div>
+
+              <div class="role-grid">
+                @for (role of roles(); track role.id) {
+                  <article>
+                    <strong>{{ role.name }}</strong>
+                    <span>{{ role.description }}</span>
+                    <div class="action-row">
+                      <button type="button" class="text-button" (click)="editRole(role)">
+                        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M5 19h1.4L16.7 8.7l-1.4-1.4L5 17.6V19Zm-2 2v-4.2L16.7 3.1c.4-.4 1-.4 1.4 0l2.8 2.8c.4.4.4 1 0 1.4L7.2 21H3Z" />
+                        </svg>
+                        <span>Edit</span>
+                      </button>
+                      <button type="button" class="danger-button" (click)="deleteRole(role)">
+                        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M7 21c-.55 0-1-.45-1-1V7H5V5h4V4h6v1h4v2h-1v13c0 .55-.45 1-1 1H7Zm2-3h2V8H9v10Zm4 0h2V8h-2v10Z" />
+                        </svg>
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  </article>
+                }
+              </div>
+            </section>
+          </div>
+        }
+
+        @case ('campuses') {
+          <div class="management-grid">
+            <section class="panel" aria-labelledby="campus-form-title">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Campus Management</p>
+                  <h2 id="campus-form-title">{{ editingCampusId() ? 'Edit campus' : 'Create campus' }}</h2>
+                </div>
+              </div>
+
+              <form [formGroup]="campusForm" (ngSubmit)="saveCampus()" class="create-form">
+                <div class="field">
+                  <label for="campus-name">Campus name</label>
+                  <input id="campus-name" type="text" formControlName="name" />
+                </div>
+
+                <label class="check-field" for="campus-main">
+                  <input id="campus-main" type="checkbox" formControlName="isMain" />
+                  <span>Main campus</span>
+                </label>
+
+                <div class="button-row">
+                  <button type="submit" [disabled]="isManaging()">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6Z" />
+                    </svg>
+                    <span>{{ editingCampusId() ? 'Update Campus' : 'Create Campus' }}</span>
+                  </button>
+                  @if (editingCampusId()) {
+                    <button type="button" class="secondary-button" (click)="cancelCampusEdit()">Cancel</button>
+                  }
+                </div>
+              </form>
+            </section>
+
+            <section class="panel" aria-labelledby="campuses-title">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Campus Scope</p>
+                  <h2 id="campuses-title">Campuses</h2>
+                </div>
+              </div>
+
+              <div class="campus-grid">
+                @for (item of usersByCampus(); track item.campus.id) {
+                  <article>
+                    <strong>{{ item.campus.name }}</strong>
+                    <span>{{ item.campus.isMain ? 'Main campus' : 'Branch campus' }}</span>
+                    <b>{{ item.total }} users assigned</b>
+                    <div class="action-row">
+                      <button type="button" class="text-button" (click)="editCampus(item.campus)">
+                        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M5 19h1.4L16.7 8.7l-1.4-1.4L5 17.6V19Zm-2 2v-4.2L16.7 3.1c.4-.4 1-.4 1.4 0l2.8 2.8c.4.4.4 1 0 1.4L7.2 21H3Z" />
+                        </svg>
+                        <span>Edit</span>
+                      </button>
+                      <button type="button" class="danger-button" (click)="deleteCampus(item.campus)">
+                        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M7 21c-.55 0-1-.45-1-1V7H5V5h4V4h6v1h4v2h-1v13c0 .55-.45 1-1 1H7Zm2-3h2V8H9v10Zm4 0h2V8h-2v10Z" />
+                        </svg>
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  </article>
+                }
+              </div>
+            </section>
+          </div>
+        }
+
+        @case ('categories') {
+          <div class="management-grid">
+            <section class="panel" aria-labelledby="category-form-title">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Role Categories</p>
+                  <h2 id="category-form-title">
+                    {{ editingOfficeTitleId() ? 'Edit designation' : 'Create designation' }}
+                  </h2>
+                </div>
+              </div>
+
+              <form [formGroup]="officeTitleForm" (ngSubmit)="saveOfficeTitle()" class="create-form">
+                <div class="field">
+                  <label for="category-role">Role</label>
+                  <select id="category-role" formControlName="roleId">
+                    @for (role of roles(); track role.id) {
+                      <option [value]="role.id">{{ role.name }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="category-title">Office / designation title</label>
+                  <input id="category-title" type="text" formControlName="title" />
+                </div>
+
+                <div class="button-row">
+                  <button type="submit" [disabled]="isManaging()">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6Z" />
+                    </svg>
+                    <span>{{ editingOfficeTitleId() ? 'Update Designation' : 'Create Designation' }}</span>
+                  </button>
+                  @if (editingOfficeTitleId()) {
+                    <button type="button" class="secondary-button" (click)="cancelOfficeTitleEdit()">Cancel</button>
+                  }
+                </div>
+              </form>
+            </section>
+
+            <section class="panel" aria-labelledby="categories-title">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Designation Library</p>
+                  <h2 id="categories-title">Role categories</h2>
+                </div>
+              </div>
+
+              <div class="role-grid">
+                @for (officeTitle of officeTitles(); track officeTitle.id) {
+                  <article>
+                    <strong>{{ officeTitle.title }}</strong>
+                    <span>{{ officeTitle.roleName }}</span>
+                    <div class="action-row">
+                      <button type="button" class="text-button" (click)="editOfficeTitle(officeTitle)">
+                        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M5 19h1.4L16.7 8.7l-1.4-1.4L5 17.6V19Zm-2 2v-4.2L16.7 3.1c.4-.4 1-.4 1.4 0l2.8 2.8c.4.4.4 1 0 1.4L7.2 21H3Z" />
+                        </svg>
+                        <span>Edit</span>
+                      </button>
+                      <button type="button" class="danger-button" (click)="deleteOfficeTitle(officeTitle)">
+                        <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="M7 21c-.55 0-1-.45-1-1V7H5V5h4V4h6v1h4v2h-1v13c0 .55-.45 1-1 1H7Zm2-3h2V8H9v10Zm4 0h2V8h-2v10Z" />
+                        </svg>
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  </article>
+                }
+              </div>
+            </section>
+          </div>
+        }
+
+        @case ('reports') {
+          <section class="reports-grid" aria-label="Admin reports">
+            <article class="panel report-card">
+              <p class="eyebrow">Users</p>
+              <strong>{{ activeUsers() }} / {{ totalUsers() }}</strong>
+              <span>Active accounts</span>
+            </article>
+
+            <article class="panel report-card">
+              <p class="eyebrow">Roles</p>
+              <strong>{{ roleCount() }}</strong>
+              <span>Configured approval roles</span>
+            </article>
+
+            <article class="panel report-card">
+              <p class="eyebrow">Campuses</p>
+              <strong>{{ campusCount() }}</strong>
+              <span>UMU campuses in scope</span>
+            </article>
+
+            <section class="panel report-table" aria-labelledby="report-title">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Distribution</p>
+                  <h2 id="report-title">Users by role</h2>
+                </div>
+              </div>
+
+              <div class="stack-list">
+                @for (item of usersByRole(); track item.role.id) {
+                  <article class="summary-row">
+                    <strong>{{ item.role.name }}</strong>
+                    <span>{{ item.total }} users</span>
+                  </article>
+                }
+              </div>
+            </section>
+          </section>
+        }
+      }
+    }
+  </section>
+</main>
