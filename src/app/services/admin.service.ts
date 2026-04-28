@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { ApiUrlService } from './api-url.service';
 import { AuthService, Campus, CurrentUser, Role } from './auth.service';
 
 export interface CreateUserRequest {
@@ -35,16 +36,36 @@ export interface RoleOfficeTitleRequest {
   title: string;
 }
 
+export interface ResetPasswordResponse {
+  user: CurrentUser;
+  temporaryPassword: string;
+}
+
+export interface LoginAudit {
+  id: number;
+  email: string;
+  wasSuccessful: boolean;
+  reason: string;
+  createdAt: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AdminService {
   private readonly http = inject(HttpClient);
+  private readonly apiUrl = inject(ApiUrlService);
   private readonly authService = inject(AuthService);
-  private readonly baseUrl = 'http://localhost:5050/api/admin';
+  private readonly baseUrl = this.apiUrl.url('/api/admin');
 
   getUsers(): Observable<CurrentUser[]> {
     return this.http.get<CurrentUser[]>(`${this.baseUrl}/users`, {
+      headers: this.authService.authHeaders()
+    });
+  }
+
+  getLoginAudits(): Observable<LoginAudit[]> {
+    return this.http.get<LoginAudit[]>(`${this.baseUrl}/login-audits`, {
       headers: this.authService.authHeaders()
     });
   }
@@ -67,6 +88,14 @@ export class AdminService {
     return this.http.delete<void>(`${this.baseUrl}/users/${id}`, {
       headers: this.authService.authHeaders()
     });
+  }
+
+  resetUserPassword(id: number): Observable<ResetPasswordResponse> {
+    return this.http.post<ResetPasswordResponse>(
+      `${this.baseUrl}/users/${id}/reset-password`,
+      {},
+      { headers: this.authService.authHeaders() }
+    );
   }
 
   getRoles(): Observable<Role[]> {

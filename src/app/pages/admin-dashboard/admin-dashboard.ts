@@ -1,13 +1,15 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
+import { NgOptimizedImage } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import { AdminService, RoleOfficeTitle } from '../../services/admin.service';
+import { AdminService, LoginAudit, RoleOfficeTitle } from '../../services/admin.service';
 import { AuthService, Campus, CurrentUser, Role } from '../../services/auth.service';
 
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [ReactiveFormsModule],
+  imports: [NgOptimizedImage, ReactiveFormsModule],
   templateUrl: './admin-dashboard.html',
   styleUrl: './admin-dashboard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -22,6 +24,7 @@ export class AdminDashboard implements OnInit {
   protected readonly roles = signal<Role[]>([]);
   protected readonly campuses = signal<Campus[]>([]);
   protected readonly officeTitles = signal<RoleOfficeTitle[]>([]);
+  protected readonly loginAudits = signal<LoginAudit[]>([]);
   protected readonly isLoading = signal(true);
   protected readonly isCreating = signal(false);
   protected readonly isManaging = signal(false);
@@ -31,6 +34,8 @@ export class AdminDashboard implements OnInit {
   protected readonly editingRoleId = signal<number | null>(null);
   protected readonly editingCampusId = signal<number | null>(null);
   protected readonly editingOfficeTitleId = signal<number | null>(null);
+  protected readonly passwordVisible = signal(false);
+  protected readonly passwordInputType = computed(() => (this.passwordVisible() ? 'text' : 'password'));
   protected readonly activeSection = signal<
     'dashboard' | 'users' | 'roles' | 'campuses' | 'categories' | 'reports'
   >('dashboard');
@@ -77,7 +82,10 @@ export class AdminDashboard implements OnInit {
     }),
     password: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(8)]
+      validators: [
+        Validators.required,
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/)
+      ]
     }),
     roleId: new FormControl('', {
       nonNullable: true,
@@ -92,6 +100,10 @@ export class AdminDashboard implements OnInit {
       validators: [Validators.required]
     })
   });
+
+  protected togglePasswordVisibility(): void {
+    this.passwordVisible.update((isVisible) => !isVisible);
+  }
 
   protected readonly roleForm = new FormGroup({
     name: new FormControl('', {
@@ -157,9 +169,11 @@ export class AdminDashboard implements OnInit {
           this.isCreating.set(false);
           this.successMessage.set('User created successfully.');
         },
-        error: () => {
+        error: (error: HttpErrorResponse) => {
           this.isCreating.set(false);
-          this.loadError.set('Could not create user. Confirm the email is not already registered.');
+          this.loadError.set(
+            error.error?.message || 'Could not create user. Confirm the email is not already registered.'
+          );
         }
       });
   }
@@ -210,6 +224,30 @@ export class AdminDashboard implements OnInit {
       error: () => {
         this.isManaging.set(false);
         this.loadError.set('Could not delete user.');
+      }
+    });
+  }
+
+  protected resetUserPassword(user: CurrentUser): void {
+    this.isManaging.set(true);
+    this.loadError.set('');
+    this.successMessage.set('');
+
+    this.adminService.resetUserPassword(user.id).subscribe({
+      next: (response) => {
+        this.users.update((users) =>
+          users.map((existingUser) =>
+            existingUser.id === response.user.id ? response.user : existingUser
+          )
+        );
+        this.isManaging.set(false);
+        this.successMessage.set(
+          `Temporary password for ${response.user.fullName}: ${response.temporaryPassword}`
+        );
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isManaging.set(false);
+        this.loadError.set(error.error?.message || 'Could not reset user password.');
       }
     });
   }
@@ -423,13 +461,15 @@ export class AdminDashboard implements OnInit {
       users: this.adminService.getUsers(),
       roles: this.adminService.getRoles(),
       campuses: this.adminService.getCampuses(),
-      officeTitles: this.adminService.getRoleOfficeTitles()
+      officeTitles: this.adminService.getRoleOfficeTitles(),
+      loginAudits: this.adminService.getLoginAudits()
     }).subscribe({
-      next: ({ users, roles, campuses, officeTitles }) => {
+      next: ({ users, roles, campuses, officeTitles, loginAudits }) => {
         this.users.set(users);
         this.roles.set(roles);
         this.campuses.set(campuses);
         this.officeTitles.set(officeTitles);
+        this.loginAudits.set(loginAudits);
         this.setDefaultSelects(roles, campuses);
         this.setDefaultOfficeTitleRole();
         this.isLoading.set(false);

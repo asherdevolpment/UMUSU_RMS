@@ -1,0 +1,617 @@
+<main class="requester-shell">
+  <aside class="sidebar" aria-label="Requester navigation">
+    <img class="brand-mark" ngSrc="/assets/umu%20logo.png" alt="Uganda Martyrs University crest" width="34" height="34" priority />
+
+    <nav>
+      <button type="button" [class.active]="activeSection() === 'dashboard'" aria-label="Dashboard" (click)="openSection('dashboard')">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 13h8V3H3v10Zm10 8h8V3h-8v18ZM3 21h8v-6H3v6Z" />
+        </svg>
+        <span>Dashboard</span>
+      </button>
+      <button type="button" [class.active]="activeSection() === 'create'" aria-label="New requisition" (click)="focusRequestForm()">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6Z" />
+        </svg>
+        <span>New Requisition</span>
+      </button>
+      <button type="button" [class.active]="activeSection() === 'requisitions'" aria-label="My requisitions" (click)="openSection('requisitions')">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 21V3h14v18H5Zm3-13h8V6H8v2Zm0 4h8v-2H8v2Zm0 4h5v-2H8v2Z" />
+        </svg>
+        <span>My Requisitions</span>
+      </button>
+      <button type="button" [class.active]="activeSection() === 'accountability'" aria-label="Accountability" (click)="openSection('accountability')">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m10 15.2 7.6-7.6L19 9l-9 9-5-5 1.4-1.4 3.6 3.6ZM4 4h11v2H4V4Zm0 4h8v2H4V8Z" />
+        </svg>
+        <span>Budgets</span>
+      </button>
+    </nav>
+  </aside>
+
+  <section class="workspace" aria-labelledby="page-title">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Requester Portal</p>
+        <h1 id="page-title">{{ pageTitle() }}</h1>
+      </div>
+
+      <div class="profile">
+        <span class="profile-avatar" aria-hidden="true">{{ userInitial() }}</span>
+        <div>
+          <strong>{{ userName() }}</strong>
+          <span>{{ campusName() }}</span>
+        </div>
+        <button type="button" class="logout-button" (click)="logout()">Logout</button>
+      </div>
+    </header>
+
+    @if (activeSection() === 'dashboard') {
+      <section class="hero-panel" aria-label="Requester overview">
+        <div>
+          <p class="eyebrow">Start here</p>
+          <h2>Submit, track, and respond to requisitions from one place.</h2>
+          <p>Choose the correct request category, attach clear details, and follow the approval status until it is ready for payment or collection.</p>
+        </div>
+
+        <button type="button" class="primary-action" (click)="focusRequestForm()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6Z" />
+          </svg>
+          <span>New Requisition</span>
+        </button>
+      </section>
+    }
+
+    <section class="metric-grid" aria-label="Requester summary">
+      @for (card of summaryCards(); track card.label) {
+        <article class="metric-card">
+          <span
+            class="metric-icon"
+            [class.submitted]="card.tone === 'submitted'"
+            [class.pending]="card.tone === 'pending'"
+            [class.approved]="card.tone === 'approved'"
+            [class.draft]="card.tone === 'draft'"
+            aria-hidden="true"
+          >
+            <svg viewBox="0 0 24 24">
+              <path [attr.d]="card.iconPath" />
+            </svg>
+          </span>
+          <span>{{ card.label }}</span>
+          <strong>{{ card.value }}</strong>
+        </article>
+      }
+    </section>
+
+    @if (errorMessage()) {
+      <p class="form-alert error" role="alert">{{ errorMessage() }}</p>
+    }
+
+    @if (successMessage()) {
+      <p class="form-alert success" role="status">{{ successMessage() }}</p>
+    }
+
+    @if (activeSection() === 'dashboard') {
+      <section class="content-grid">
+        <section class="panel profile-panel" aria-labelledby="profile-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Profile</p>
+              <h2 id="profile-title">Requester details</h2>
+            </div>
+            <span class="status-pill" [class.inactive]="accountStatus() === 'Inactive'">{{ accountStatus() }}</span>
+          </div>
+
+          <dl class="detail-list">
+            @for (detail of requesterDetails(); track detail.label) {
+              <div>
+                <dt>{{ detail.label }}</dt>
+                <dd>{{ detail.value }}</dd>
+              </div>
+            }
+          </dl>
+        </section>
+
+        <section class="panel" aria-labelledby="quick-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Quick Actions</p>
+              <h2 id="quick-title">What do you want to do?</h2>
+            </div>
+          </div>
+
+          <div class="quick-actions">
+            <button type="button" class="category-card" (click)="focusRequestForm()">
+              <span class="category-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6Z" />
+                </svg>
+              </span>
+              <span class="category-content">
+                <strong>Create a requisition</strong>
+                <span>Start a draft or submit a complete request.</span>
+              </span>
+            </button>
+            <button type="button" class="category-card" (click)="openSection('requisitions')">
+              <span class="category-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M5 21V3h14v18H5Zm3-13h8V6H8v2Zm0 4h8v-2H8v2Zm0 4h5v-2H8v2Z" />
+                </svg>
+              </span>
+              <span class="category-content">
+                <strong>Track requests</strong>
+                <span>View drafts, submitted requests, and timeline events.</span>
+              </span>
+            </button>
+            <button type="button" class="category-card" (click)="openSection('accountability')">
+              <span class="category-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M4 19h16v2H4v-2Zm1-2V9h3v8H5Zm5 0V3h3v14h-3Zm5 0v-6h3v6h-3Z" />
+                </svg>
+              </span>
+              <span class="category-content">
+                <strong>Review budgets</strong>
+                <span>Track known budget, approvals, pending requests, and unbudgeted items.</span>
+              </span>
+            </button>
+          </div>
+        </section>
+      </section>
+    }
+
+    @if (activeSection() === 'create') {
+      <section class="content-grid">
+        <section class="panel request-panel" aria-labelledby="categories-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Create</p>
+              <h2 id="categories-title">Select request category</h2>
+            </div>
+          </div>
+
+          <div class="category-list">
+            @for (category of requestCategories; track category.key) {
+              <button
+                type="button"
+                class="category-card"
+                [class.selected]="selectedCategory() === category.key"
+                [attr.aria-pressed]="selectedCategory() === category.key"
+                (click)="selectCategory(category.key)"
+              >
+                <span class="category-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path [attr.d]="category.iconPath" />
+                  </svg>
+                </span>
+                <span class="category-content">
+                  <strong>{{ category.title }}</strong>
+                  <span>{{ category.description }}</span>
+                  <em>{{ category.examples }}</em>
+                </span>
+              </button>
+            }
+          </div>
+
+          <form class="request-form" [formGroup]="requisitionForm" (input)="clearMessages()">
+            <label>
+              <span>Request title</span>
+              <input #requestTitle type="text" formControlName="title" placeholder="Example: Transport to leadership summit" />
+            </label>
+
+            <label>
+              <span>Subcategory</span>
+              <input type="text" formControlName="subcategory" [placeholder]="subcategoryPlaceholder()" />
+            </label>
+
+            <label>
+              <span>{{ amountLabel() }}</span>
+              <input type="number" formControlName="amount" min="0" placeholder="Example: 500000" />
+            </label>
+
+            <label>
+              <span>Needed date</span>
+              <input type="date" formControlName="neededDate" />
+            </label>
+
+            <label class="wide-field">
+              <span>Approved budget item</span>
+              <select [value]="requisitionForm.controls.budgetItemId.value ?? ''" (change)="budgetItemChanged($event)">
+                <option value="">Select a council-approved budget item</option>
+                @for (item of budgetItems(); track item.id) {
+                  <option [value]="item.id">
+                    {{ item.sectionName }} - {{ item.itemName }} ({{ formatMoney(item.totalAmount) }})
+                  </option>
+                }
+              </select>
+            </label>
+
+            <label class="checkbox-field wide-field">
+              <input type="checkbox" formControlName="isUnbudgeted" (change)="unbudgetedChanged($event)" />
+              <span>This request is not in the approved budget, but it is crucial for the office work.</span>
+            </label>
+
+            <label>
+              <span>Budget line</span>
+              <input type="text" formControlName="budgetLine" placeholder="Example: Guild events, welfare, transport" />
+            </label>
+
+            <label>
+              <span>Known line budget</span>
+              <input type="number" formControlName="plannedBudget" min="0" placeholder="Example: 8000000" />
+            </label>
+
+            <label class="wide-field">
+              <span>Purpose and justification</span>
+              <textarea formControlName="purpose" rows="4" [placeholder]="purposePlaceholder()"></textarea>
+            </label>
+
+            <label class="wide-field">
+              <span>Budget items / cost breakdown</span>
+              <textarea formControlName="lineItems" rows="3" placeholder="List the main items, quantities, and estimated costs."></textarea>
+            </label>
+
+            @if (requisitionForm.controls.isUnbudgeted.value) {
+              <label class="wide-field">
+                <span>Unbudgeted justification</span>
+                <textarea formControlName="unbudgetedJustification" rows="3" placeholder="Explain why this item was not in the council-passed budget and why it is necessary now."></textarea>
+              </label>
+            }
+
+            @switch (selectedCategory()) {
+              @case ('activity') {
+                <section class="category-detail-fields wide-field" aria-labelledby="activity-fields-title">
+                  <h3 id="activity-fields-title">Activity details</h3>
+                  <label>
+                    <span>Activity date</span>
+                    <input type="date" formControlName="activityDate" />
+                  </label>
+                  <label>
+                    <span>Venue</span>
+                    <input type="text" formControlName="venue" placeholder="Example: Main Hall" />
+                  </label>
+                  <label>
+                    <span>Expected participants</span>
+                    <input type="number" formControlName="expectedParticipants" min="1" placeholder="Example: 120" />
+                  </label>
+                  <label>
+                    <span>Activity lead</span>
+                    <input type="text" formControlName="activityLead" placeholder="Person responsible for the activity" />
+                  </label>
+                </section>
+              }
+
+              @case ('petty-cash') {
+                <section class="category-detail-fields wide-field" aria-labelledby="petty-fields-title">
+                  <h3 id="petty-fields-title">Petty cash details</h3>
+                  <label>
+                    <span>Expense type</span>
+                    <input type="text" formControlName="expenseType" placeholder="Example: Stationery" />
+                  </label>
+                  <label>
+                    <span>Accountability date</span>
+                    <input type="date" formControlName="accountabilityDate" />
+                  </label>
+                  <label class="wide-field">
+                    <span>Urgency reason</span>
+                    <textarea formControlName="urgencyReason" rows="3" placeholder="Explain why petty cash is needed now."></textarea>
+                  </label>
+                </section>
+              }
+
+              @case ('asset') {
+                <section class="category-detail-fields wide-field" aria-labelledby="asset-fields-title">
+                  <h3 id="asset-fields-title">Asset request details</h3>
+                  <label>
+                    <span>Asset type</span>
+                    <select formControlName="assetType">
+                      <option value="Vehicle">Vehicle</option>
+                      <option value="Tent">Tent</option>
+                      <option value="Chair">Chair</option>
+                      <option value="Sports Equipment">Sports Equipment</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Quantity</span>
+                    <input type="number" formControlName="quantity" min="1" />
+                  </label>
+                  <label>
+                    <span>Usage date</span>
+                    <input type="date" formControlName="usageDate" />
+                  </label>
+                  <label>
+                    <span>Return date</span>
+                    <input type="date" formControlName="returnDate" />
+                  </label>
+                  <label>
+                    <span>Destination / location</span>
+                    <input type="text" formControlName="destination" placeholder="Destination, venue, or pickup location" />
+                  </label>
+                  <label>
+                    <span>Responsible person</span>
+                    <input type="text" formControlName="responsiblePerson" placeholder="Who will receive and return it?" />
+                  </label>
+                </section>
+              }
+            }
+
+            <section class="document-upload wide-field" aria-labelledby="documents-title">
+              <div>
+                <p class="eyebrow">Documents</p>
+                <h3 id="documents-title">Budget and supporting evidence</h3>
+              </div>
+
+              <label>
+                <span>Budget spreadsheet @if (needsBudgetSpreadsheet()) { <b>Required</b> }</span>
+                <input type="file" accept=".xlsx,.xls,.csv" (change)="budgetFileChanged($event)" />
+              </label>
+
+              <label>
+                <span>Supporting PDF documents @if (needsSupportingPdf()) { <b>Required</b> }</span>
+                <input type="file" accept="application/pdf,.pdf" multiple (change)="supportingFilesChanged($event)" />
+              </label>
+
+              <div class="document-checklist">
+                <span [class.complete]="!needsBudgetSpreadsheet() || budgetFile() || existingBudgetDocument()">
+                  Budget spreadsheet: {{ budgetFile()?.name || (existingBudgetDocument() ? 'Already uploaded' : needsBudgetSpreadsheet() ? 'Missing' : 'Not required') }}
+                </span>
+                <span [class.complete]="!needsSupportingPdf() || supportingFiles().length > 0 || existingSupportingPdf()">
+                  Supporting PDFs: {{ supportingFiles().length }} selected @if (existingSupportingPdf()) { <b>Existing files available</b> }
+                </span>
+              </div>
+            </section>
+
+            @if (isReviewOpen()) {
+              <section class="review-panel wide-field" aria-labelledby="review-title">
+                <div>
+                  <p class="eyebrow">Final check</p>
+                  <h3 id="review-title">Review before submission</h3>
+                </div>
+                <dl class="detail-list review-list">
+                  @for (row of selectedReviewRows(); track row.label) {
+                    <div>
+                      <dt>{{ row.label }}</dt>
+                      <dd>{{ row.value }}</dd>
+                    </div>
+                  }
+                </dl>
+                <p>
+                  Once submitted, this request moves into approval review. Further changes should happen only if it is returned.
+                </p>
+                <div class="form-actions">
+                  <button type="button" class="ghost-action" (click)="closeReview()">Keep editing</button>
+                  <button type="button" class="primary-action" [disabled]="isSaving()" (click)="confirmReviewedSubmit()">Confirm and Submit</button>
+                </div>
+              </section>
+            }
+
+            <div class="form-actions">
+              @if (editingRequisitionId()) {
+                <button type="button" class="ghost-action" (click)="cancelEdit()">Cancel edit</button>
+              }
+              <button type="button" class="ghost-action" [disabled]="isSaving()" (click)="saveDraft()">Save Draft</button>
+              <button type="button" class="primary-action" [disabled]="isSaving()" (click)="submitRequisition()">Submit Request</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel profile-panel" aria-labelledby="category-help-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Selected</p>
+              <h2 id="category-help-title">{{ selectedCategoryInfo().title }}</h2>
+            </div>
+          </div>
+          <p class="panel-copy">{{ selectedCategoryInfo().description }}</p>
+          <p class="panel-copy strong-copy">{{ selectedCategoryInfo().examples }}</p>
+          <div class="baseline-box">
+            <p class="eyebrow">Official baseline</p>
+            <strong>{{ budgetItems().length }} approved budget items available</strong>
+            <span>Use the council-passed budget where possible. Mark only genuinely necessary new items as unbudgeted.</span>
+          </div>
+        </section>
+      </section>
+    }
+
+    @if (activeSection() === 'requisitions') {
+      <section class="bottom-grid">
+        <section class="panel" aria-labelledby="recent-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Recent</p>
+              <h2 id="recent-title">My requisitions</h2>
+            </div>
+          </div>
+
+          @if (isLoading()) {
+            <div class="empty-state">
+              <strong>Loading requisitions...</strong>
+              <span>Please wait while your records are loaded.</span>
+            </div>
+          } @else if (requisitions().length === 0) {
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M5 21V3h14v18H5Zm3-13h8V6H8v2Zm0 4h8v-2H8v2Zm0 4h5v-2H8v2Z" />
+              </svg>
+              <strong>No requisitions yet</strong>
+              <span>Your saved drafts and submitted requests will appear here.</span>
+            </div>
+          } @else {
+            <div class="request-list" role="list">
+              @for (requisition of requisitions(); track requisition.id) {
+                <article class="request-row" role="listitem">
+                  <button type="button" class="request-summary" (click)="selectRequisition(requisition)">
+                    <span>
+                      <strong>{{ requisition.title }}</strong>
+                      <em>{{ requisition.referenceNo }} - {{ requisition.category }}</em>
+                    </span>
+                    <span class="status-chip">{{ requisition.status }}</span>
+                  </button>
+
+                  <div class="request-meta">
+                    <span>{{ formatMoney(requisition.amount) }}</span>
+                    <span>{{ formatDate(requisition.neededDate) }}</span>
+                    <span>{{ requisition.currentStep }}</span>
+                  </div>
+
+                  @if (canEdit(requisition)) {
+                    <div class="row-actions">
+                      <button type="button" class="ghost-action" (click)="editRequisition(requisition)">Edit</button>
+                      <button type="button" class="ghost-action" (click)="useAsTemplate(requisition)">Use as template</button>
+                      <button type="button" class="primary-action" [disabled]="isSaving()" (click)="submitExisting(requisition)">Submit</button>
+                    </div>
+                  } @else {
+                    <div class="row-actions">
+                      <button type="button" class="ghost-action" (click)="useAsTemplate(requisition)">Use as template</button>
+                    </div>
+                  }
+                </article>
+              }
+            </div>
+          }
+        </section>
+
+        <section class="panel" aria-labelledby="flow-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Tracking</p>
+              <h2 id="flow-title">Request timeline</h2>
+            </div>
+          </div>
+
+          @if (selectedRequisition()) {
+            <div class="selected-request">
+              <strong>{{ selectedRequisition()?.referenceNo }}</strong>
+              <span>{{ selectedRequisition()?.title }}</span>
+            </div>
+
+            <div class="detail-list tracking-details">
+              @for (detail of selectedDetailRows(); track detail.label) {
+                <div>
+                  <dt>{{ detail.label }}</dt>
+                  <dd>{{ detail.value }}</dd>
+                </div>
+              }
+            </div>
+
+            <div class="document-list" aria-label="Uploaded documents">
+              <p class="eyebrow">Uploaded documents</p>
+              @if (requisitionDocuments().length === 0) {
+                <span>No documents uploaded yet.</span>
+              } @else {
+                @for (document of requisitionDocuments(); track document.id) {
+                  <article>
+                    <strong>{{ document.documentType }}</strong>
+                    <span>{{ document.originalName }} - {{ formatFileSize(document.fileSize) }}</span>
+                  </article>
+                }
+              }
+            </div>
+
+            <ol class="flow-list">
+              @for (event of requisitionEvents(); track event.id) {
+                <li>
+                  <span>{{ $index + 1 }}</span>
+                  <p>
+                    <strong>{{ event.eventType }}</strong>
+                    {{ event.note }}
+                  </p>
+                </li>
+              }
+            </ol>
+          } @else {
+            <div class="empty-state compact-empty">
+              <strong>No request selected</strong>
+              <span>Select a requisition to view its movement.</span>
+            </div>
+          }
+        </section>
+      </section>
+    }
+
+    @if (activeSection() === 'accountability') {
+      <section class="content-grid">
+        <section class="panel budget-panel" aria-labelledby="budget-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Budget performance</p>
+              <h2 id="budget-title">Tracked from your requisitions</h2>
+            </div>
+          </div>
+
+          <div class="budget-summary-grid">
+            <article>
+              <span>Known budget</span>
+              <strong>{{ formatMoney(totalKnownBudget()) }}</strong>
+            </article>
+            <article>
+              <span>Total requested</span>
+              <strong>{{ formatMoney(totalRequestedBudget()) }}</strong>
+            </article>
+            <article>
+              <span>Approved / ready</span>
+              <strong>{{ formatMoney(totalApprovedBudget()) }}</strong>
+            </article>
+            <article>
+              <span>Unbudgeted requests</span>
+              <strong>{{ formatMoney(totalUnbudgeted()) }}</strong>
+            </article>
+          </div>
+
+          @if (budgetLines().length === 0) {
+            <div class="empty-state compact-empty">
+              <strong>No budget lines yet</strong>
+              <span>Add a budget line and known line budget when creating requisitions.</span>
+            </div>
+          } @else {
+            <div class="budget-line-list">
+              @for (line of budgetLines(); track line.name) {
+                <article>
+                  <div class="budget-line-heading">
+                    <div>
+                      <strong>{{ line.name }}</strong>
+                      <span>{{ formatMoney(line.requested) }} requested from {{ formatMoney(line.allocated) }}</span>
+                    </div>
+                    <b>{{ budgetUsagePercent(line) }}%</b>
+                  </div>
+                  <div class="budget-bar" aria-hidden="true">
+                    <span [style.width]="budgetUsageWidth(line)"></span>
+                  </div>
+                  <div class="request-meta">
+                    <span>Approved: {{ formatMoney(line.approved) }}</span>
+                    <span>Pending: {{ formatMoney(line.pending) }}</span>
+                    <span>Unbudgeted: {{ formatMoney(line.unbudgeted) }}</span>
+                  </div>
+                </article>
+              }
+            </div>
+          }
+        </section>
+
+        <section class="panel chart-panel" aria-labelledby="status-chart-title">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Requisition mix</p>
+              <h2 id="status-chart-title">Status distribution</h2>
+            </div>
+          </div>
+
+          <div class="donut-chart" [style.background]="statusChartBackground()" aria-hidden="true">
+            <span>{{ requisitions().length }}</span>
+          </div>
+
+          <div class="chart-legend">
+            @for (segment of statusSegments(); track segment.label) {
+              <div>
+                <span [style.background-color]="segment.color" aria-hidden="true"></span>
+                <strong>{{ segment.label }}</strong>
+                <em>{{ segment.value }} requests, {{ segment.percent }}%</em>
+              </div>
+            }
+          </div>
+        </section>
+      </section>
+    }
+  </section>
+</main>

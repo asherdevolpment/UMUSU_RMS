@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-const { initializeDatabase, pool, resetDefaultAdmin } = require("./db");
+const { formatDatabaseConnectionError, initializeDatabase, pool, resetDefaultAdmin } = require("./db");
 
 async function main() {
   await initializeDatabase();
@@ -13,7 +13,8 @@ async function main() {
 
 main()
   .catch((error) => {
-    console.error("Failed to reset default admin:", error.message);
+    console.error("Failed to reset default admin:");
+    console.error(formatDatabaseConnectionError(error));
     process.exitCode = 1;
   })
   .finally(async () => {

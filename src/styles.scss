@@ -8,11 +8,13 @@ html {
 
 body {
   margin: 0;
+  overflow-x: hidden;
 }
 
 a,
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
 }

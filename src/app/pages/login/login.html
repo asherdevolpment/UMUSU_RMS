@@ -1,37 +1,98 @@
-<main class="login-page">
-  <section class="login-panel" aria-labelledby="login-title">
-    <div class="brand-block">
-      <span class="brand-mark" aria-hidden="true">UR</span>
+<main class="auth-page">
+  <section class="landing-panel" aria-labelledby="landing-title">
+    <header class="brand-header">
+      <img class="brand-mark" ngSrc="/assets/umu%20logo.png" alt="Uganda Martyrs University crest" width="54" height="54" priority />
       <div>
-        <p class="eyebrow">UMUSU RMS</p>
-        <h1 id="login-title">Sign in to continue</h1>
+        <strong>UMUSU RMS</strong>
+        <span>Requisition Management System</span>
       </div>
+    </header>
+
+    <div class="landing-copy">
+      <p class="eyebrow">Uganda Martyrs University Students Union</p>
+      <h1 id="landing-title">Smart requisitions for a transparent student union.</h1>
+      <p>
+        Submit requests, route approvals by role, track decisions, and keep accountability visible across all UMU campuses.
+      </p>
+      <div class="campus-strip" aria-label="Supported campuses">
+        <span>Nkozi</span>
+        <span>Rubaga</span>
+        <span>Masaka</span>
+        <span>Ngetta</span>
+        <span>Fort Portal</span>
+      </div>
+    </div>
+
+    <div class="feature-grid" aria-label="System highlights">
+      <article>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 21V3h14v18H5Zm3-13h8V6H8v2Zm0 4h8v-2H8v2Zm0 4h5v-2H8v2Z" />
+        </svg>
+        <strong>Structured requests</strong>
+        <span>Activity, petty cash, and general asset requisitions.</span>
+      </article>
+      <article>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m10 15.2 7.6-7.6L19 9l-9 9-5-5 1.4-1.4 3.6 3.6Z" />
+        </svg>
+        <strong>Role-based approval</strong>
+        <span>Access follows requester, approver, finance, and admin roles.</span>
+      </article>
+      <article>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20Zm1-10V7h-2v7h6v-2h-4Z" />
+        </svg>
+        <strong>Live tracking</strong>
+        <span>Every action creates a visible request timeline.</span>
+      </article>
+    </div>
+  </section>
+
+  <section class="login-panel" aria-labelledby="login-title">
+    <div class="login-logo">
+      <img ngSrc="/assets/umu%20logo.png" alt="Uganda Martyrs University crest" width="70" height="70" priority />
+    </div>
+
+    <div class="login-heading">
+      <p class="eyebrow">Secure access</p>
+      <h2 id="login-title">Sign in to your account</h2>
+      <p>Only verified UMU email accounts can access the system.</p>
     </div>
 
     <form [formGroup]="loginForm" (ngSubmit)="submit()" class="login-form">
       <div class="field">
-        <label for="email">Email address</label>
+        <label for="email">UMU email address</label>
         <input
           id="email"
           type="email"
           autocomplete="email"
           formControlName="email"
-          aria-describedby="email-error"
+          placeholder="name@umu.ac.ug"
+          aria-describedby="email-help email-error"
         />
+        <span id="email-help" class="field-help">Use your {{ allowedDomain }} email address.</span>
         @if (loginForm.controls.email.invalid && loginForm.controls.email.touched) {
-          <p id="email-error" class="field-error">Enter a valid email address.</p>
+          <p id="email-error" class="field-error">Enter a valid UMU email address.</p>
         }
       </div>
 
       <div class="field">
         <label for="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          autocomplete="current-password"
-          formControlName="password"
-          aria-describedby="password-error"
-        />
+        <div class="password-control">
+          <input
+            id="password"
+            [type]="passwordInputType()"
+            autocomplete="current-password"
+            formControlName="password"
+            placeholder="Enter your password"
+            aria-describedby="password-error"
+          />
+          <button type="button" class="icon-button" [attr.aria-label]="passwordVisible() ? 'Hide password' : 'Show password'" (click)="togglePasswordVisibility()">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 5c5 0 8.6 4.5 9.7 6.1a1.6 1.6 0 0 1 0 1.8C20.6 14.5 17 19 12 19s-8.6-4.5-9.7-6.1a1.6 1.6 0 0 1 0-1.8C3.4 9.5 7 5 12 5Zm0 3.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Zm0 2a1.8 1.8 0 1 1 0 3.6 1.8 1.8 0 0 1 0-3.6Z" />
+            </svg>
+          </button>
+        </div>
         @if (loginForm.controls.password.invalid && loginForm.controls.password.touched) {
           <p id="password-error" class="field-error">Password is required.</p>
         }
@@ -41,8 +102,8 @@
         <p class="form-error" role="alert">{{ errorMessage() }}</p>
       }
 
-      <button type="submit" [disabled]="isSubmitting()">
-        {{ isSubmitting() ? 'Signing in...' : 'Sign in' }}
+      <button type="submit" class="submit-button" [disabled]="isSubmitting()">
+        {{ isSubmitting() ? 'Signing in...' : 'Sign in securely' }}
       </button>
     </form>
   </section>

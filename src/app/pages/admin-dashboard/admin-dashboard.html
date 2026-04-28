@@ -1,11 +1,7 @@
 <main class="dashboard-shell">
   <aside class="sidebar" aria-label="Admin navigation">
     <div class="brand">
-      <span class="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 24 24">
-          <path d="M12 3 5 6v5.4c0 4.6 2.9 8.6 7 9.6 4.1-1 7-5 7-9.6V6l-7-3Zm-1 5h2v3h3v2h-3v3h-2v-3H8v-2h3V8Z" />
-        </svg>
-      </span>
+      <img class="brand-mark" ngSrc="/assets/umu%20logo.png" alt="Uganda Martyrs University crest" width="34" height="34" priority />
       <div>
         <strong>UMUSU RMS</strong>
         <span>Admin</span>
@@ -210,12 +206,20 @@
 
                 <div class="field">
                   <label for="password">Temporary password</label>
-                  <input
-                    id="password"
-                    type="password"
-                    formControlName="password"
-                    autocomplete="new-password"
-                  />
+                  <div class="password-control">
+                    <input
+                      id="password"
+                      [type]="passwordInputType()"
+                      formControlName="password"
+                      autocomplete="new-password"
+                    />
+                    <button type="button" class="icon-button" [attr.aria-label]="passwordVisible() ? 'Hide password' : 'Show password'" (click)="togglePasswordVisibility()">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 5c5 0 8.6 4.5 9.7 6.1a1.6 1.6 0 0 1 0 1.8C20.6 14.5 17 19 12 19s-8.6-4.5-9.7-6.1a1.6 1.6 0 0 1 0-1.8C3.4 9.5 7 5 12 5Zm0 3.2a3.8 3.8 0 1 0 0 7.6 3.8 3.8 0 0 0 0-7.6Zm0 2a1.8 1.8 0 1 1 0 3.6 1.8 1.8 0 0 1 0-3.6Z" />
+                      </svg>
+                    </button>
+                  </div>
+                  <span class="field-hint">8+ characters with uppercase, lowercase, number, and symbol.</span>
                 </div>
 
                 <div class="field">
@@ -287,9 +291,22 @@
                           <span class="status" [class.inactive]="!user.isActive">
                             {{ user.isActive ? 'Active' : 'Inactive' }}
                           </span>
+                            @if (user?.mustChangePassword) {
+                              <span class="status warning">Password reset</span>
+                            }
                         </td>
                         <td>
                           <div class="action-row">
+                            <button
+                              type="button"
+                              class="text-button"
+                              (click)="resetUserPassword(user)"
+                            >
+                              <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 17a2 2 0 0 0 2-2c0-.74-.4-1.38-1-1.73V11h2V9h-2V7h-2v2H9v2h2v2.27c-.6.35-1 .99-1 1.73a2 2 0 0 0 2 2ZM6 21V7h12v14H6Zm2-2h8V9H8v10ZM9 5V3h6v2H9Z" />
+                              </svg>
+                              <span>Reset</span>
+                            </button>
                             <button
                               type="button"
                               class="text-button"
@@ -570,6 +587,24 @@
                   <article class="summary-row">
                     <strong>{{ item.role.name }}</strong>
                     <span>{{ item.total }} users</span>
+                  </article>
+                }
+              </div>
+            </section>
+
+            <section class="panel report-table" aria-labelledby="audit-title">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Security</p>
+                  <h2 id="audit-title">Recent login activity</h2>
+                </div>
+              </div>
+
+              <div class="stack-list compact">
+                @for (audit of loginAudits(); track audit.id) {
+                  <article class="summary-row">
+                    <strong>{{ audit.email }}</strong>
+                    <span>{{ audit.wasSuccessful ? 'Success' : 'Failed' }} - {{ audit.reason }}</span>
                   </article>
                 }
               </div>

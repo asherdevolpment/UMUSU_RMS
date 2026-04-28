@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
+import { ApiUrlService } from './api-url.service';
 
 export interface NlpAnalysis {
   id: number;
@@ -15,13 +16,13 @@ export interface NlpAnalysis {
 })
 export class NlpService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:5000';
+  private readonly apiUrl = inject(ApiUrlService);
 
   readonly result = signal<NlpAnalysis | null>(null);
 
   analyzeText(text: string): Observable<NlpAnalysis> {
     return this.http
-      .post<NlpAnalysis>(`${this.baseUrl}/api/nlp/analyze`, { text })
+      .post<NlpAnalysis>(this.apiUrl.url('/api/nlp/analyze'), { text })
       .pipe(tap((analysis) => this.result.set(analysis)));
   }
 }

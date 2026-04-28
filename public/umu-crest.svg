@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 180" role="img" aria-labelledby="title desc">
+  <title id="title">Uganda Martyrs University crest mark</title>
+  <desc id="desc">A simplified shield mark using yellow, red, black, and white inspired by the university crest.</desc>
+  <path fill="#f7d33b" stroke="#141414" stroke-width="4" d="M80 6 30 25 22 98c-2 35 24 62 58 76 34-14 60-41 58-76l-8-73L80 6Z"/>
+  <path fill="#fffdf3" stroke="#141414" stroke-width="3" d="M80 18 41 33l-6 63c-2 27 18 49 45 61 27-12 47-34 45-61l-6-63-39-15Z"/>
+  <path fill="#f7d33b" d="M80 32v52H47c0-24 13-43 33-52Z"/>
+  <path fill="#e84a28" d="M80 32c20 9 33 28 33 52H80V32Z"/>
+  <path fill="#1d1d1b" d="M47 84h66c-4 25-18 43-33 51-15-8-29-26-33-51Z"/>
+  <path fill="#ffffff" stroke="#141414" stroke-width="2" d="M87 70c9-7 18-7 27-2v28c-9-5-18-5-27 2V70Z"/>
+  <path fill="none" stroke="#141414" stroke-width="1.5" d="M93 75c5-3 10-3 15 0M93 82c5-3 10-3 15 0M93 89c5-3 10-3 15 0"/>
+  <path fill="#ffffff" stroke="#141414" stroke-width="2" d="M68 104h24l-4 25H72l-4-25Z"/>
+  <path fill="none" stroke="#141414" stroke-width="1.5" d="M72 110h16M73 116h14M74 122h12"/>
+  <path fill="#e84a28" stroke="#141414" stroke-width="2" d="m55 76 13-31 8 4-8 25 9 10-8 7-14-15Z"/>
+  <path fill="#f7d33b" stroke="#141414" stroke-width="2" d="M28 128c15 17 32 28 52 36 20-8 37-19 52-36l8 23c-17 11-36 20-60 27-24-7-43-16-60-27l8-23Z"/>
+</svg>

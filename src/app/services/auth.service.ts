@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
+import { ApiUrlService } from './api-url.service';
 
 export interface Role {
   id: number;
@@ -21,6 +22,7 @@ export interface CurrentUser {
   role: Role;
   campus: Campus;
   officeTitle: string;
+  mustChangePassword: boolean;
   isActive: boolean;
   createdAt: string;
 }
@@ -35,7 +37,7 @@ interface LoginResponse {
 })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:5050';
+  private readonly apiUrl = inject(ApiUrlService);
   private readonly tokenKey = 'umusu_rms_token';
   private readonly userKey = 'umusu_rms_user';
 
@@ -43,10 +45,45 @@ export class AuthService {
   readonly currentUser = signal<CurrentUser | null>(this.readUser());
   readonly isLoggedIn = computed(() => Boolean(this.token() && this.currentUser()));
   readonly isAdmin = computed(() => this.currentUser()?.role.name === 'Admin');
+  readonly defaultRoute = computed(() => {
+    if (this.currentUser()?.mustChangePassword) {
+      return '/change-password';
+    }
+
+    const roleName = this.currentUser()?.role.name;
+
+    if (roleName === 'Admin') {
+      return '/admin';
+    }
+
+    if (roleName === 'Requester') {
+      return '/requester';
+    }
+
+    if (roleName === 'Asset Officer') {
+      return '/assets';
+    }
+
+    if (roleName === 'Budget Officer' || roleName === 'Finance Officer') {
+      return '/budget';
+    }
+
+    return '/approver';
+  });
 
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http
-      .post<LoginResponse>(`${this.baseUrl}/api/auth/login`, { email, password })
+      .post<LoginResponse>(this.apiUrl.url('/api/auth/login'), { email, password })
+      .pipe(tap((response) => this.setSession(response)));
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<LoginResponse> {
+    return this.http
+      .post<LoginResponse>(
+        this.apiUrl.url('/api/auth/change-password'),
+        { currentPassword, newPassword },
+        { headers: this.authHeaders() }
+      )
       .pipe(tap((response) => this.setSession(response)));
   }
 
